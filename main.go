@@ -8,6 +8,7 @@ import (
 
 	"github.com/ilyxenc/rattle/internal/config"
 	"github.com/ilyxenc/rattle/internal/docker"
+	"github.com/ilyxenc/rattle/internal/loganalyzer"
 	"github.com/ilyxenc/rattle/internal/logger"
 	"github.com/ilyxenc/rattle/internal/scanner"
 	"github.com/ilyxenc/rattle/internal/telegram"
@@ -16,6 +17,8 @@ import (
 func main() {
 	// Load environment configuration from .env or system
 	config.Load()
+	// Initialize custom patterns for errors
+	loganalyzer.InitCustomPatterns()
 	// Initialize the global logger
 	logger.Init()
 	defer logger.Log.Sync() // Flush logs on shutdown

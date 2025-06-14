@@ -46,6 +46,10 @@ func (m *LogScanManager) StartAll() error {
 	}
 
 	for _, c := range containers {
+		ci := docker.NewContainerInfo(c)
+		if shouldIgnoreContainer(ci) {
+			continue
+		}
 		m.startScanner(c, true)
 	}
 
@@ -167,6 +171,11 @@ func (m *LogScanManager) watchContainerEvents() {
 
 				for _, c := range containers {
 					if c.ID == id {
+						ci := docker.NewContainerInfo(c)
+						if shouldIgnoreContainer(ci) {
+							logger.Log.Infof("Ignored container %s due to filters", name)
+						}
+
 						m.startScanner(c, false)
 						break
 					}
