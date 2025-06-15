@@ -33,8 +33,7 @@ func main() {
 	})
 
 	// Create context that cancels on interrupt or SIGTERM
-	shutdownCtx, shutdownCancel := context.WithCancel(context.Background())
-	ctx, stop := signal.NotifyContext(shutdownCtx, os.Interrupt, syscall.SIGTERM)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
 	// Create Docker client and log scan manager
@@ -47,9 +46,7 @@ func main() {
 	<-ctx.Done()
 
 	// Trigger shutdown
-	manager.ShuttingDown.Store(true)
 	manager.StopAll()
-	shutdownCancel()
 
 	// Log and notify that Rattle is shutting down
 	logger.Log.Info("🛑 Shutting down Rattle")

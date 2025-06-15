@@ -2,8 +2,8 @@ package scanner
 
 import (
 	"context"
+	"errors"
 	"sync"
-	"sync/atomic"
 	"time"
 
 	"github.com/docker/docker/api/types/container"
@@ -18,12 +18,11 @@ import (
 
 // LogScanManager manages log scanners for all running containers
 type LogScanManager struct {
-	Ctx          context.Context        // Shared context for cancellation
-	Client       *client.Client         // Docker client
-	Scanners     map[string]*LogScanner // Map of active scanners by container ID
-	Mu           sync.Mutex             // Mutex to protect Scanners map
-	ShuttingDown atomic.Bool            // Indicates shutdown is in progress
-	wg           sync.WaitGroup         // Tracks active scanner goroutines
+	Ctx      context.Context        // Shared context for cancellation
+	Client   *client.Client         // Docker client
+	Scanners map[string]*LogScanner // Map of active scanners by container ID
+	Mu       sync.Mutex             // Mutex to protect Scanners map
+	wg       sync.WaitGroup         // Tracks active scanner goroutines
 }
 
 // NewLogScanManager creates a new LogScanManager instance
@@ -114,7 +113,9 @@ func (m *LogScanManager) startScanner(c container.Summary, suppressNotify bool) 
 		defer m.wg.Done()
 
 		// Start log scanner
-		if err := s.Start(ctx); err != nil {
+		err := s.Start(ctx)
+
+		if err != nil {
 			telegram.Notify(telegram.Notification{
 				Type:      telegram.NotificationContainerStopWithError,
 				Container: info,
@@ -127,13 +128,16 @@ func (m *LogScanManager) startScanner(c container.Summary, suppressNotify bool) 
 		delete(m.Scanners, info.ID)
 		m.Mu.Unlock()
 
-		// Notify only if not in shutdown mode
-		if !m.ShuttingDown.Load() {
-			telegram.Notify(telegram.Notification{
-				Type:      telegram.NotificationContainerStop,
-				Container: info,
-			})
+		// Skip notification if container stopped due to app shutdown
+		if errors.Is(ctx.Err(), context.Canceled) {
+			return
 		}
+
+		// Notify only if not in shutdown mode
+		telegram.Notify(telegram.Notification{
+			Type:      telegram.NotificationContainerStop,
+			Container: info,
+		})
 		logger.Log.Infof("Scanner removed for container %s", info.Name)
 	}()
 }

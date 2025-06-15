@@ -20,9 +20,9 @@ var (
 // Init initializes the Telegram client and configures retry behavior
 func Init() {
 	client = resty.New().
-		SetRetryCount(5).                     // Number of retry attempts
-		SetRetryWaitTime(1 * time.Second).    // Minimum wait between retries
-		SetRetryMaxWaitTime(5 * time.Second). // Maximum wait time between retries
+		SetRetryCount(5).                      // Number of retry attempts
+		SetRetryWaitTime(4 * time.Second).     // Minimum wait between retries
+		SetRetryMaxWaitTime(10 * time.Second). // Maximum wait time between retries
 		AddRetryCondition(func(r *resty.Response, err error) bool {
 			// Retry on network errors or 5xx HTTP status codes
 			if err != nil {
