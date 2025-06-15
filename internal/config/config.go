@@ -9,7 +9,7 @@ import (
 // Config holds all environment-based configuration for the application
 type Config struct {
 	BotToken               string   // Telegram bot token
-	ChatID                 string   // Telegram chat ID to send messages to
+	ChatIDs                []string // Telegram chat IDs to send messages to
 	LogLevel               string   // Log level: debug, info, warn, error
 	Env                    string   // Application environment: local, dev, prod, etc
 	IncludeError           []string // Regex patterns to include in error detection
@@ -32,7 +32,7 @@ func Load() {
 	// Initialize the global config from required env vars
 	Cfg = &Config{
 		BotToken:               getEnv("TELEGRAM_BOT_TOKEN"),
-		ChatID:                 getEnv("TELEGRAM_CHAT_ID"),
+		ChatIDs:                splitEnv("TELEGRAM_CHAT_IDS"),
 		LogLevel:               getEnv("LOG_LEVEL"),
 		Env:                    getEnv("APP_ENV"),
 		IncludeError:           splitEnv("INCLUDE_ERROR_PATTERNS"),

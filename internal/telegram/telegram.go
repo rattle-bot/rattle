@@ -14,7 +14,6 @@ var client *resty.Client
 
 var (
 	baseURL string // Base URL for Telegram Bot API
-	chatID  string // Target chat ID for sending notifications
 )
 
 // Init initializes the Telegram client and configures retry behavior
@@ -32,30 +31,31 @@ func Init() {
 		})
 
 	baseURL = fmt.Sprintf("https://api.telegram.org/bot%s", config.Cfg.BotToken)
-	chatID = config.Cfg.ChatID
 
-	logger.Log.Debugf("Telegram initialized for chat %s", chatID)
+	logger.Log.Debugf("Telegram initialized for %d chats", len(config.Cfg.ChatIDs))
 }
 
-// SendPlainText sends a MarkdownV2-formatted text message to the configured Telegram chat
+// SendPlainText sends a MarkdownV2-formatted text message to the configured Telegram chats
 func SendPlainText(msg string) {
 	msg = cleanUTF8(msg) // Sanitize message to ensure it's valid UTF-8
 
-	resp, err := client.R().
-		SetQueryParams(map[string]string{
-			"chat_id":    chatID,
-			"text":       msg,
-			"parse_mode": "MarkdownV2", // Enables MarkdownV2 formatting
-		}).
-		SetHeader("Content-Type", "application/json").
-		Get(baseURL + "/sendMessage")
+	for _, chatID := range config.Cfg.ChatIDs {
+		resp, err := client.R().
+			SetQueryParams(map[string]string{
+				"chat_id":    chatID,
+				"text":       msg,
+				"parse_mode": "MarkdownV2", // Enables MarkdownV2 formatting
+			}).
+			SetHeader("Content-Type", "application/json").
+			Get(baseURL + "/sendMessage")
 
-	if err != nil {
-		logger.Log.Errorf("Failed to send Telegram message: %v", err)
-		return
-	}
+		if err != nil {
+			logger.Log.Errorf("Failed to send Telegram message: %v", err)
+			return
+		}
 
-	if resp.StatusCode() != http.StatusOK {
-		logger.Log.Errorf("Telegram responded with status %d: %s", resp.StatusCode(), resp.String())
+		if resp.StatusCode() != http.StatusOK {
+			logger.Log.Errorf("Telegram responded with status %d: %s", resp.StatusCode(), resp.String())
+		}
 	}
 }
