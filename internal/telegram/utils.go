@@ -23,6 +23,19 @@ func formatMeta(ci docker.ContainerInfo) string {
 	)
 }
 
+// formatContainersSummary returns formatted information about active containers
+func formatContainersSummary(containers []docker.ContainerInfo) string {
+	if len(containers) == 0 {
+		return "📦 No active containers running"
+	}
+
+	msg := fmt.Sprintf("📊 *%d active containers:*\n\n", len(containers))
+	for _, ci := range containers {
+		msg += fmt.Sprintf("\\- `%s`: %s\n", ci.ShortID, escapeMarkdownV2(ci.Name))
+	}
+	return msg
+}
+
 // cleanUTF8 removes invalid UTF-8 runes from the input string to ensure Telegram accepts the message
 func cleanUTF8(input string) string {
 	if utf8.ValidString(input) {

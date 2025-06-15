@@ -44,13 +44,21 @@ func (m *LogScanManager) StartAll() error {
 		return err
 	}
 
+	// Save active containers for notification
+	active := make([]docker.ContainerInfo, 0, len(containers))
 	for _, c := range containers {
 		ci := docker.NewContainerInfo(c)
 		if shouldIgnoreContainer(ci) {
 			continue
 		}
 		m.startScanner(c, true)
+		active = append(active, ci)
 	}
+
+	telegram.Notify(telegram.Notification{
+		Type:       telegram.NotificationContainersSummary,
+		Containers: active,
+	})
 
 	go m.watchContainerEvents()
 

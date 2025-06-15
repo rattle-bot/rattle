@@ -17,13 +17,15 @@ const (
 	NotificationContainerStopWithError NotificationType = "container_stop_with_error" // Sent when a container stops unexpectedly with error
 	NotificationShutDownRattle         NotificationType = "shut_down_rattle"          // Sent when Rattle is shutting down
 	NotificationStartedRattle          NotificationType = "started_rattle"            // Sent when Rattle starts
+	NotificationContainersSummary      NotificationType = "containers_summary"        // Sent when Rattle starts and find containers
 )
 
 // Notification represents the structure of a message to be sent to Telegram
 type Notification struct {
-	Type      NotificationType     // The type of event
-	Details   string               // Optional details (e.g., error message or log content)
-	Container docker.ContainerInfo // Metadata about the container related to the event
+	Type       NotificationType       // The type of event
+	Details    string                 // Optional details (e.g., error message or log content)
+	Container  docker.ContainerInfo   // Metadata about the container related to the event
+	Containers []docker.ContainerInfo // For summary events like containers list
 }
 
 // Notify sends a formatted notification to the configured Telegram chat
@@ -51,6 +53,8 @@ func RenderNotification(n Notification) string {
 		return fmt.Sprintf("🛑 *Rattle is shutting down%s*", escapeMarkdownV2("..."))
 	case NotificationStartedRattle:
 		return fmt.Sprintf("🚀 Rattle started in *%s* mode", config.Cfg.Env)
+	case NotificationContainersSummary:
+		return formatContainersSummary(n.Containers)
 	default:
 		return "📦 Unknown notification type"
 	}
