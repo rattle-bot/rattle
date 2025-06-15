@@ -3,8 +3,9 @@ package scanner
 import (
 	"strings"
 
-	"github.com/ilyxenc/rattle/internal/config"
 	"github.com/ilyxenc/rattle/internal/docker"
+	"github.com/ilyxenc/rattle/internal/managers"
+	"github.com/ilyxenc/rattle/internal/models"
 )
 
 // cleanLine trims extra spaces, invisible characters, and line breaks
@@ -21,25 +22,29 @@ func shouldIgnoreContainer(ci docker.ContainerInfo) bool {
 	id := strings.ToLower(ci.ID)
 
 	// Check if container name matches any exclusion pattern
-	for _, n := range config.Cfg.ExcludeContainerNames {
-		if strings.Contains(name, strings.ToLower(n)) {
-			return true
-		}
+	if matchesAny(name, managers.Containers.All(models.ContainerExclusionName), strings.Contains) {
+		return true
 	}
 
 	// Check if container image matches any exclusion pattern
-	for _, img := range config.Cfg.ExcludeContainerImages {
-		if strings.Contains(image, strings.ToLower(img)) {
-			return true
-		}
+	if matchesAny(image, managers.Containers.All(models.ContainerExclusionImage), strings.Contains) {
+		return true
 	}
 
 	// Check if container ID starts with any excluded ID prefix
-	for _, i := range config.Cfg.ExcludeContainerIDs {
-		if strings.HasPrefix(id, strings.ToLower(i)) {
+	if matchesAny(id, managers.Containers.All(models.ContainerExclusionID), strings.HasPrefix) {
+		return true
+	}
+
+	return false
+}
+
+// matchesAny checks if the value matches any pattern using the given matcher function
+func matchesAny(value string, patterns []string, matchFn func(string, string) bool) bool {
+	for _, p := range patterns {
+		if matchFn(value, p) {
 			return true
 		}
 	}
-	
 	return false
 }

@@ -36,15 +36,15 @@ func parseLogLevel(s string) zapcore.Level {
 }
 
 // Init initializes the global Zap logger based on config
-func Init() {
+func Init(path string) {
 	level := parseLogLevel(config.Cfg.LogLevel)
 
 	fileWriter := zapcore.AddSync(&lumberjack.Logger{
-		Filename:   "./logs/rattle.log", // Relative path from project root (main.go)
-		MaxSize:    10,                  // Megabytes
-		MaxBackups: 3,                   // Number of old log files to keep
-		MaxAge:     28,                  // Max age in days before deletion
-		Compress:   true,                // Compress old log files
+		Filename:   path, // Relative path from project root (main.go)
+		MaxSize:    10,   // Megabytes
+		MaxBackups: 3,    // Number of old log files to keep
+		MaxAge:     28,   // Max age in days before deletion
+		Compress:   true, // Compress old log files
 	})
 
 	// Encoder configuration

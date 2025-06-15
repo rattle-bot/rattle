@@ -9,10 +9,10 @@ import (
 	"github.com/ilyxenc/rattle/internal/docker"
 )
 
-// formatErrorMessage formats an error message for Telegram using MarkdownV2 code block
-func formatErrorMessage(errText string) string {
+// formatMessage formats an error message for Telegram using MarkdownV2 code block
+func formatMessage(eventType, errText string) string {
 	cleaned := cleanUTF8(errText)
-	return fmt.Sprintf("\n\n```Error\n%s\n```", escapeMarkdownV2(cleaned))
+	return fmt.Sprintf("\n\n```%s\n%s\n```", escapeMarkdownV2(eventType), escapeMarkdownV2(cleaned))
 }
 
 // formatMeta returns formatted container metadata with timestamp, used as part of notifications
@@ -79,4 +79,39 @@ func escapeMarkdownV2(text string) string {
 		`!`, `\!`,
 	)
 	return replacer.Replace(text)
+}
+
+// EventEmoji returns emoji for title based on event type
+func EventEmoji(eventType string) string {
+	switch eventType {
+	case "error":
+		return "❌"
+	case "warning":
+		return "⚠️"
+	case "success":
+		return "✅"
+	case "info":
+		return "ℹ️"
+	case "critical":
+		return "🚨"
+	default:
+		return "📦"
+	}
+}
+
+func FormatEventTitle(eventType, containerName string) string {
+	switch eventType {
+	case "error":
+		return fmt.Sprintf("❌ *Error in container:* `%s`", containerName)
+	case "warning":
+		return fmt.Sprintf("⚠️ *Warning in container:* `%s`", containerName)
+	case "success":
+		return fmt.Sprintf("✅ *Success in container:* `%s`", containerName)
+	case "info":
+		return fmt.Sprintf("ℹ️ *Info from container:* `%s`", containerName)
+	case "critical":
+		return fmt.Sprintf("🚨 *Critical event in container:* `%s`", containerName)
+	default:
+		return fmt.Sprintf("📦 *Log from container:* `%s`", containerName)
+	}
 }

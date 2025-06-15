@@ -8,6 +8,7 @@ import (
 	"github.com/go-resty/resty/v2"
 	"github.com/ilyxenc/rattle/internal/config"
 	"github.com/ilyxenc/rattle/internal/logger"
+	"github.com/ilyxenc/rattle/internal/managers"
 )
 
 var client *resty.Client
@@ -32,14 +33,14 @@ func Init() {
 
 	baseURL = fmt.Sprintf("https://api.telegram.org/bot%s", config.Cfg.BotToken)
 
-	logger.Log.Debugf("Telegram initialized for %d chats", len(config.Cfg.ChatIDs))
+	logger.Log.Debugf("Telegram initialized for %d chats", len(managers.Chats.All()))
 }
 
 // SendPlainText sends a MarkdownV2-formatted text message to the configured Telegram chats
 func SendPlainText(msg string) {
 	msg = cleanUTF8(msg) // Sanitize message to ensure it's valid UTF-8
 
-	for _, chatID := range config.Cfg.ChatIDs {
+	for _, chatID := range managers.Chats.All() {
 		resp, err := client.R().
 			SetQueryParams(map[string]string{
 				"chat_id":    chatID,

@@ -33,3 +33,6 @@ go.work.sum
 
 # Logger
 logs
+
+# Database
+db

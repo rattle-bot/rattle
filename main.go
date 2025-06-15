@@ -7,9 +7,10 @@ import (
 	"syscall"
 
 	"github.com/ilyxenc/rattle/internal/config"
+	"github.com/ilyxenc/rattle/internal/database"
 	"github.com/ilyxenc/rattle/internal/docker"
-	"github.com/ilyxenc/rattle/internal/loganalyzer"
 	"github.com/ilyxenc/rattle/internal/logger"
+	"github.com/ilyxenc/rattle/internal/managers"
 	"github.com/ilyxenc/rattle/internal/scanner"
 	"github.com/ilyxenc/rattle/internal/telegram"
 )
@@ -17,11 +18,25 @@ import (
 func main() {
 	// Load environment configuration from .env or system
 	config.Load()
-	// Initialize custom patterns for errors
-	loganalyzer.InitCustomPatterns()
 	// Initialize the global logger
-	logger.Init()
+	logger.Init("./logs/rattle.log")
 	defer logger.Log.Sync() // Flush logs on shutdown
+
+	// Connect to database
+	if err := database.Connect("./db/rattle.db"); err != nil {
+		logger.Log.Fatal("Failed to connect to database:", err)
+	}
+	// Run migrations
+	if err := database.AutoMigrate(); err != nil {
+		logger.Log.Fatal("Failed to migrate database:", err)
+	}
+	// Initialize data (chat IDs, patterns, exclusions)
+	if err := database.Initialize(); err != nil {
+		logger.Log.Fatal("Failed to initialize database data:", err)
+	}
+
+	// Register observers AFTER DB init but BEFORE logic starts and reload managers
+	managers.Init()
 
 	// Initialize Telegram client
 	telegram.Init()
