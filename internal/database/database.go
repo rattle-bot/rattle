@@ -42,7 +42,7 @@ func Connect() error {
 
 func AutoMigrate() error {
 	return DB.AutoMigrate(
-		&User{}, &models.LogExclusion{}, &models.Chat{}, &models.ContainerExclusion{},
+		&models.User{}, &models.LogExclusion{}, &models.Chat{}, &models.ContainerExclusion{},
 	)
 }
 

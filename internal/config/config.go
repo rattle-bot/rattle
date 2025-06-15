@@ -14,6 +14,10 @@ type Postgres struct {
 	Database string
 }
 
+type Fiber struct {
+	Port int
+}
+
 // Config holds all environment-based configuration for the application
 type Config struct {
 	BotToken string   // Telegram bot token
@@ -21,6 +25,7 @@ type Config struct {
 	LogLevel string   // Log level: debug, info, warn, error
 	Env      string   // Application environment: local, dev, prod, etc
 	Postgres Postgres
+	Fiber    Fiber
 
 	IncludePatterns map[string][]string // Key = eventType
 	ExcludePatterns []string            // Regex patterns to exclude from log detection
@@ -64,5 +69,8 @@ func Load() {
 		ExcludeContainerNames:  splitEnv("EXCLUDE_CONTAINER_NAMES"),
 		ExcludeContainerImages: splitEnv("EXCLUDE_CONTAINER_IMAGES"),
 		ExcludeContainerIDs:    splitEnv("EXCLUDE_CONTAINER_IDS"),
+		Fiber: Fiber{
+			Port: getEnvAsInt("FIBER_PORT"),
+		},
 	}
 }
