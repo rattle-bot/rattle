@@ -108,9 +108,9 @@ func (m *LogScanManager) startScanner(c container.Summary, suppressNotify bool) 
 	}
 	logger.Log.Infof("Started scanner for container %s", info.Name)
 
-	m.wg.Add(1)
+	m.wg.Add(1) // Register a new scanner goroutine in the WaitGroup
 	go func() {
-		defer m.wg.Done()
+		defer m.wg.Done() // Signal that this scanner goroutine has finished
 
 		// Start log scanner
 		err := s.Start(ctx)
