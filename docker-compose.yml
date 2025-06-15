@@ -1,0 +1,40 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: rattle_postgres
+    restart: always
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "5435:${POSTGRES_PORT:-5432}"
+    volumes:
+      - ${POSTGRES_VOLUMES}
+    networks:
+      - rattle-network
+
+  scanner:
+    build:
+      context: .
+      dockerfile: Dockerfile.scanner
+    container_name: rattle_scanner
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - rattle-network
+
+volumes:
+  pgdata:
+
+networks:
+  rattle-network:
+    driver: bridge

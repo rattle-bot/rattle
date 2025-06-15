@@ -23,7 +23,7 @@ func main() {
 	defer logger.Log.Sync() // Flush logs on shutdown
 
 	// Connect to database
-	if err := database.Connect("./db/rattle.db"); err != nil {
+	if err := database.Connect(); err != nil {
 		logger.Log.Fatal("Failed to connect to database:", err)
 	}
 	// Run migrations

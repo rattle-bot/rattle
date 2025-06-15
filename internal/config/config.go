@@ -6,12 +6,21 @@ import (
 	"github.com/joho/godotenv"
 )
 
+type Postgres struct {
+	Port     int
+	Host     string
+	User     string
+	Password string
+	Database string
+}
+
 // Config holds all environment-based configuration for the application
 type Config struct {
 	BotToken string   // Telegram bot token
 	ChatIDs  []string // Telegram chat IDs to send messages to
 	LogLevel string   // Log level: debug, info, warn, error
 	Env      string   // Application environment: local, dev, prod, etc
+	Postgres Postgres
 
 	IncludePatterns map[string][]string // Key = eventType
 	ExcludePatterns []string            // Regex patterns to exclude from log detection
@@ -37,6 +46,13 @@ func Load() {
 		ChatIDs:  splitEnv("TELEGRAM_CHAT_IDS"),
 		LogLevel: getEnv("LOG_LEVEL"),
 		Env:      getEnv("APP_ENV"),
+		Postgres: Postgres{
+			Port:     getEnvAsInt("POSTGRES_PORT"),
+			Host:     getEnv("POSTGRES_HOST"),
+			User:     getEnv("POSTGRES_USER"),
+			Password: getEnv("POSTGRES_PASSWORD"),
+			Database: getEnv("POSTGRES_DB"),
+		},
 		IncludePatterns: map[string][]string{
 			"error":    splitEnv("INCLUDE_PATTERNS_ERROR"),
 			"success":  splitEnv("INCLUDE_PATTERNS_SUCCESS"),

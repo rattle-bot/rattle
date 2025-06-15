@@ -1,13 +1,12 @@
 package database
 
 import (
-	"os"
-	"path/filepath"
+	"fmt"
 	"strings"
 
 	"github.com/ilyxenc/rattle/internal/config"
 	"github.com/ilyxenc/rattle/internal/models"
-	"gorm.io/driver/sqlite"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
@@ -15,12 +14,17 @@ import (
 // DB gorm connector
 var DB *gorm.DB
 
-func Connect(path string) error {
-	// Ensure the directory for the database file exists
-	dir := filepath.Dir(path)
-	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
-		return err
-	}
+func Connect() error {
+	var err error
+
+	host := config.Cfg.Postgres.Host
+	user := config.Cfg.Postgres.User
+	password := config.Cfg.Postgres.Password
+	dbname := config.Cfg.Postgres.Database
+	port := config.Cfg.Postgres.Port
+	timeZone := "UTC"
+
+	dsn := fmt.Sprintf("host=%v user=%v password=%v dbname=%v port=%v sslmode=disable client_encoding=UTF8 TimeZone=%v", host, user, password, dbname, port, timeZone)
 
 	var logLevel logger.LogLevel
 	if config.Cfg.Env == "local" {
@@ -29,8 +33,7 @@ func Connect(path string) error {
 		logLevel = logger.Silent
 	}
 
-	var err error
-	DB, err = gorm.Open(sqlite.Open(path), &gorm.Config{
+	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logLevel),
 	})
 
@@ -114,6 +117,16 @@ func Initialize() error {
 	}
 
 	// Init exclude containers values
+	// Rattle exclusion
+	exclusions := []models.ContainerExclusion{
+		{Type: models.ContainerExclusionName, Value: "rattle"},
+		{Type: models.ContainerExclusionImage, Value: "rattle"},
+	}
+	for _, e := range exclusions {
+		if err := DB.FirstOrCreate(&models.ContainerExclusion{}, e).Error; err != nil {
+			return err
+		}
+	}
 	for _, val := range config.Cfg.ExcludeContainerNames {
 		if strings.TrimSpace(val) == "" {
 			continue
