@@ -30,6 +30,7 @@ func AuthTelegram(c *fiber.Ctx) error {
 	vldt := validator.New()
 
 	if err := vldt.Struct(input); err != nil {
+		fmt.Println(err)
 		return c.Status(fiber.StatusBadRequest).JSON(Res{
 			Message: "Validation failed",
 		})
@@ -121,6 +122,16 @@ func AuthTelegram(c *fiber.Ctx) error {
 
 	// If user exists and has access
 	if err == nil && u.ID > 0 {
+		if err := db.Model(&models.User{}).
+			Where("telegram_id = ?", tgID).
+			Updates(models.User{Username: user["username"].(string), FirstName: user["first_name"].(string)}).
+			Error; err != nil {
+			fmt.Println(err)
+			return c.Status(fiber.StatusInternalServerError).JSON(Res{
+				Message: "Failed to save user",
+			})
+		}
+
 		accessToken, err := http.GenerateAccessToken(u.TelegramID)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(Res{
