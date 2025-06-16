@@ -58,7 +58,7 @@ func GetMe(c *fiber.Ctx) error {
 	telegramID := c.Locals("telegram_id")
 
 	db := database.DB
-	
+
 	var user models.User
 
 	if err := db.Where("telegram_id = ?", telegramID).First(&user).Error; err != nil {
