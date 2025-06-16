@@ -20,7 +20,6 @@ func CreateContainer(c *fiber.Ctx) error {
 	if err := vldt.Struct(input); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(Res{
 			Message: "Validation failed",
-			Data:    err.Error(),
 		})
 	}
 
@@ -73,7 +72,6 @@ func UpdateContainer(c *fiber.Ctx) error {
 	if err := vldt.Struct(input); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(Res{
 			Message: "Validation failed",
-			Data:    err.Error(),
 		})
 	}
 
