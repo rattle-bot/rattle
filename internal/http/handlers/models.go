@@ -23,3 +23,8 @@ type createChatInput struct {
 type updateChatInput struct {
 	Send bool `json:"send" validate:"required"`
 }
+
+type saveContainerInput struct {
+	Type  string `json:"type" validate:"required,oneof=name image id"`
+	Value string `json:"value"`
+}
