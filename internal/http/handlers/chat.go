@@ -27,10 +27,7 @@ func CreateChat(c *fiber.Ctx) error {
 
 	chat := models.Chat{
 		ChatID: input.ChatID,
-		Send:   true,
-	}
-	if input.Send != nil {
-		chat.Send = *input.Send
+		Send:   input.Send,
 	}
 
 	if err := db.Create(&chat).Error; err != nil {

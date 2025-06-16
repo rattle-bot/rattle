@@ -17,11 +17,11 @@ type createUserInput struct {
 
 type createChatInput struct {
 	ChatID string `json:"chat_id" validate:"required"`
-	Send   *bool  `json:"send"`
+	Send   bool  `json:"send"`
 }
 
 type updateChatInput struct {
-	Send bool `json:"send" validate:"required"`
+	Send bool `json:"send"`
 }
 
 type saveContainerInput struct {
