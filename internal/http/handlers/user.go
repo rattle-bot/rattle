@@ -35,6 +35,7 @@ func CreateUser(c *fiber.Ctx) error {
 	newUser := models.User{
 		TelegramID: input.TelegramID,
 		Role:       input.Role,
+		Active:     false,
 	}
 
 	if err := db.Create(&newUser).Error; err != nil {

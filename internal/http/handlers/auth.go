@@ -96,6 +96,7 @@ func AuthTelegram(c *fiber.Ctx) error {
 			Username:   user["username"].(string),
 			FirstName:  user["first_name"].(string),
 			Role:       models.RoleAdmin,
+			Active:     true,
 		}
 		if err := db.Create(&newUser).Error; err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(Res{
@@ -123,7 +124,7 @@ func AuthTelegram(c *fiber.Ctx) error {
 	if err == nil && u.ID > 0 {
 		if err := db.Model(&models.User{}).
 			Where("telegram_id = ?", tgID).
-			Updates(models.User{Username: user["username"].(string), FirstName: user["first_name"].(string)}).
+			Updates(models.User{Username: user["username"].(string), FirstName: user["first_name"].(string), Active: true}).
 			Error; err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(Res{
 				Message: "Failed to save user",

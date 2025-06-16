@@ -8,4 +8,5 @@ type User struct {
 	Username   string `json:"username"`
 	FirstName  string `json:"first_name"`
 	Role       string `json:"role"` // models.RoleAdmin / RoleUser
+	Active     bool   `json:"active"`
 }
