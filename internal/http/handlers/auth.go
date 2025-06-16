@@ -19,7 +19,7 @@ import (
 )
 
 func AuthTelegram(c *fiber.Ctx) error {
-	input := new(telegramDataInput)
+	input := new(telegramInput)
 
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(Res{
