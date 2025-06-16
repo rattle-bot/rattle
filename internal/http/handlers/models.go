@@ -28,3 +28,15 @@ type saveContainerInput struct {
 	Type  string `json:"type" validate:"required,oneof=name image id"`
 	Value string `json:"value"`
 }
+
+type createLogInput struct {
+	Pattern   string `json:"pattern" validate:"required,min=1"`
+	MatchType string `json:"match_type" validate:"required,oneof=include exclude"`
+	EventType string `json:"event_type" validate:"required,oneof=error info warning success critical"`
+}
+
+type updateLogInput struct {
+	Pattern   *string `json:"pattern" validate:"omitempty,min=1"`
+	MatchType *string `json:"match_type" validate:"omitempty,oneof=include exclude"`
+	EventType *string `json:"event_type" validate:"omitempty,oneof=error info warning success critical"`
+}
