@@ -105,7 +105,7 @@ func AuthTelegram(c *fiber.Ctx) error {
 		}
 
 		// Get access_token
-		accessToken, err := http.GenerateAccessToken(u.TelegramID)
+		accessToken, err := http.GenerateAccessToken(tgID)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(Res{
 				Message: "Failed to generate access token",
