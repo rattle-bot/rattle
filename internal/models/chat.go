@@ -6,8 +6,8 @@ import (
 
 type Chat struct {
 	gorm.Model
-	ChatID string `gorm:"uniqueIndex"`
-	Send   bool   `gorm:"default:true"` // Send notifications only if true
+	ChatID string `gorm:"uniqueIndex" json:"chat_id"`
+	Send   bool   `gorm:"default:true" json:"send"` // Send notifications only if true
 }
 
 // Callback interface

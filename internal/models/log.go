@@ -4,9 +4,9 @@ import "gorm.io/gorm"
 
 type LogExclusion struct {
 	gorm.Model
-	Pattern   string // regex-pattern
-	MatchType string // models.MatchTypeInclude / MatchTypeExclude
-	EventType string // models.EventTypeError / etc
+	Pattern   string `json:"pattern"` // regex-pattern
+	MatchType string `json:"match_type"` // models.MatchTypeInclude / MatchTypeExclude
+	EventType string `json:"event_type"` // models.EventTypeError / etc
 }
 
 // Callback interface

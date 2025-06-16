@@ -6,8 +6,8 @@ import (
 
 type ContainerExclusion struct {
 	gorm.Model
-	Type  string // models.ContainerExclusionName / Image / ID
-	Value string // Include value to exclude from all
+	Type  string `json:"type"` // models.ContainerExclusionName / Image / ID
+	Value string `json:"value"` // Include value to exclude from all
 }
 
 // Callback interface
