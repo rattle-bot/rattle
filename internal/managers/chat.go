@@ -4,7 +4,6 @@ import (
 	"sync"
 
 	"github.com/ilyxenc/rattle/internal/database"
-	"github.com/ilyxenc/rattle/internal/logger"
 	"github.com/ilyxenc/rattle/internal/models"
 	"golang.org/x/exp/slices"
 )
@@ -43,11 +42,4 @@ func (cm *ChatManager) All() []string {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
 	return slices.Clone(cm.chatIDs)
-}
-
-// OnChatChanged is called automatically by GORM hooks when a Chat is created, updated, or deleted. It refreshes the in-memory cache
-func (cm *ChatManager) OnChatChanged() {
-	if err := cm.Reload(); err != nil {
-		logger.Log.Errorf("Failed to reload chat IDs after change: %v", err)
-	}
 }

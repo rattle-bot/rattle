@@ -5,7 +5,6 @@ import (
 	"sync"
 
 	"github.com/ilyxenc/rattle/internal/database"
-	"github.com/ilyxenc/rattle/internal/logger"
 	"github.com/ilyxenc/rattle/internal/models"
 	"golang.org/x/exp/slices"
 )
@@ -47,11 +46,4 @@ func (m *ContainerManager) All(t string) []string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return slices.Clone(m.cache[strings.ToLower(t)])
-}
-
-// OnContainerChanged is called automatically by GORM hooks when a ContainerExclusion is created, updated, or deleted. It refreshes the in-memory cache
-func (cm *ContainerManager) OnContainerChanged() {
-	if err := cm.Reload(); err != nil {
-		logger.Log.Errorf("Failed to reload containers after change: %v", err)
-	}
 }

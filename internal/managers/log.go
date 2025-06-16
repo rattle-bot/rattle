@@ -85,10 +85,3 @@ func (lm *LogManager) KnownEventTypes() []string {
 	}
 	return eventTypes
 }
-
-// OnLogChanged is triggered by the model hook
-func (lm *LogManager) OnLogChanged() {
-	if err := lm.Reload(); err != nil {
-		logger.Log.Errorf("Failed to reload log patterns: %v", err)
-	}
-}
