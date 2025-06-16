@@ -54,6 +54,25 @@ func CreateUser(c *fiber.Ctx) error {
 	})
 }
 
+func GetMe(c *fiber.Ctx) error {
+	telegramID := c.Locals("telegram_id")
+
+	db := database.DB
+	
+	var user models.User
+
+	if err := db.Where("telegram_id = ?", telegramID).First(&user).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(Res{
+			Message: "Failed to retrieve user",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(Res{
+		Message: "My user data",
+		Data:    user,
+	})
+}
+
 func ListUsers(c *fiber.Ctx) error {
 	db := database.DB
 
