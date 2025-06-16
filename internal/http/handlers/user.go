@@ -53,3 +53,49 @@ func CreateUser(c *fiber.Ctx) error {
 		},
 	})
 }
+
+func ListUsers(c *fiber.Ctx) error {
+	db := database.DB
+
+	var users []models.User
+
+	if err := db.Order("created_at DESC").Find(&users).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(Res{
+			Message: "Failed to retrieve users",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(Res{
+		Message: "List of users",
+		Data:    users,
+	})
+}
+
+func DeleteUser(c *fiber.Ctx) error {
+	id := c.Params("telegram_id")
+
+	if id == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(Res{
+			Message: "Telegram ID is required",
+		})
+	}
+
+	db := database.DB
+
+	var user models.User
+	if err := db.First(&user, "id = ?", id).Error; err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(Res{
+			Message: "User not found",
+		})
+	}
+
+	if err := db.Delete(&user).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(Res{
+			Message: "Failed to delete user",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(Res{
+		Message: "User deleted successfully",
+	})
+}

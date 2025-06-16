@@ -15,5 +15,6 @@ func SetupRoutes(app *fiber.App) {
 
 	user := api.Group("/user")
 	user.Post("/new", mw.Protected(), mw.LocatedTelegramId(), mw.LocatedUserRole("admin"), handlers.CreateUser)
-
+	user.Get("/list", mw.Protected(), handlers.ListUsers)
+	user.Delete("/:telegram_id", mw.Protected(), mw.LocatedTelegramId(), mw.LocatedUserRole("admin"), handlers.DeleteUser)
 }
