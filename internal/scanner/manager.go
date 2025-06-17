@@ -186,6 +186,7 @@ func (m *LogScanManager) watchContainerEvents() {
 						ci := docker.NewContainerInfo(c)
 						if shouldIgnoreContainer(ci) {
 							logger.Log.Infof("Ignored container %s due to filters", name)
+							continue
 						}
 
 						m.startScanner(c, false)
