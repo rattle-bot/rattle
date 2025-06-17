@@ -93,8 +93,8 @@ func AuthTelegram(c *fiber.Ctx) error {
 	if count == 0 && err == gorm.ErrRecordNotFound {
 		newUser := models.User{
 			TelegramID: tgID,
-			Username:   user["username"].(string),
-			FirstName:  user["first_name"].(string),
+			Username:   getSafeString(user["username"]),
+			FirstName:  getSafeString(user["first_name"]),
 			Role:       models.RoleAdmin,
 			Active:     true,
 		}
@@ -124,7 +124,7 @@ func AuthTelegram(c *fiber.Ctx) error {
 	if err == nil && u.ID > 0 {
 		if err := db.Model(&models.User{}).
 			Where("telegram_id = ?", tgID).
-			Updates(models.User{Username: user["username"].(string), FirstName: user["first_name"].(string), Active: true}).
+			Updates(models.User{Username: getSafeString(user["username"]), FirstName: getSafeString(user["first_name"]), Active: true}).
 			Error; err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(Res{
 				Message: "Failed to save user",
@@ -150,4 +150,11 @@ func AuthTelegram(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusForbidden).JSON(Res{
 		Message: "Access denied — user is not allowed",
 	})
+}
+
+func getSafeString(value any) string {
+	if s, ok := value.(string); ok {
+		return s
+	}
+	return ""
 }
