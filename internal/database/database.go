@@ -121,6 +121,7 @@ func Initialize() error {
 	exclusions := []models.ContainerExclusion{
 		{Type: models.ContainerExclusionName, Value: "rattle"},
 		{Type: models.ContainerExclusionImage, Value: "rattle"},
+		{Type: models.ContainerExclusionLabel, Value: "rattle"},
 	}
 	for _, e := range exclusions {
 		if err := DB.FirstOrCreate(&models.ContainerExclusion{}, e).Error; err != nil {
@@ -162,6 +163,20 @@ func Initialize() error {
 
 		entry := models.ContainerExclusion{
 			Type:  models.ContainerExclusionID,
+			Value: val,
+		}
+		if err := DB.FirstOrCreate(&models.ContainerExclusion{}, entry).Error; err != nil {
+			return err
+		}
+	}
+
+	for _, val := range config.Cfg.ExcludeContainerLabels {
+		if strings.TrimSpace(val) == "" {
+			continue
+		}
+
+		entry := models.ContainerExclusion{
+			Type: models.ContainerExclusionLabel,
 			Value: val,
 		}
 		if err := DB.FirstOrCreate(&models.ContainerExclusion{}, entry).Error; err != nil {

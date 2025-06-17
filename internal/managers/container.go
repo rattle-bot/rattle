@@ -12,7 +12,7 @@ import (
 // ContainerManager handles exclusion logic and in-memory cache
 type ContainerManager struct {
 	mu    sync.RWMutex        // Mutex to protect concurrent access to the cache
-	cache map[string][]string // Key = Type ("name", "image", "id"), Value = list of excluded strings
+	cache map[string][]string // Key = Type ("name", "image", "id", "label"), Value = list of excluded strings
 }
 
 // Containers is a globally accessible instance of ContainerManager

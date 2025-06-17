@@ -33,6 +33,7 @@ type Config struct {
 	ExcludeContainerNames  []string // Container names to ignore
 	ExcludeContainerImages []string // Container images to ignore
 	ExcludeContainerIDs    []string // Container IDs to ignore
+	ExcludeContainerLabels []string // Container labels to ignore
 }
 
 // Cfg is the global config instance accessible throughout the app
@@ -69,6 +70,7 @@ func Load() {
 		ExcludeContainerNames:  splitEnv("EXCLUDE_CONTAINER_NAMES"),
 		ExcludeContainerImages: splitEnv("EXCLUDE_CONTAINER_IMAGES"),
 		ExcludeContainerIDs:    splitEnv("EXCLUDE_CONTAINER_IDS"),
+		ExcludeContainerLabels: splitEnv("EXCLUDE_CONTAINER_LABELS"),
 		Fiber: Fiber{
 			Port: getEnvAsInt("FIBER_PORT"),
 		},

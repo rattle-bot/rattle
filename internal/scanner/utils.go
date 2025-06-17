@@ -36,6 +36,15 @@ func shouldIgnoreContainer(ci docker.ContainerInfo) bool {
 		return true
 	}
 
+	// Check if container labels matches any exclusion pattern
+	for key, val := range ci.Labels {
+		label := strings.ToLower(key + "=" + val)
+
+		if matchesAny(label, managers.Containers.All(models.ContainerExclusionLabel), strings.Contains) {
+			return true
+		}
+	}
+
 	return false
 }
 

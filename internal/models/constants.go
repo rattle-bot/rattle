@@ -20,4 +20,5 @@ const (
 	ContainerExclusionName  = "name"
 	ContainerExclusionImage = "image"
 	ContainerExclusionID    = "id"
+	ContainerExclusionLabel = "label"
 )

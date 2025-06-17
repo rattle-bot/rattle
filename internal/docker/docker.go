@@ -10,11 +10,12 @@ import (
 
 // ContainerInfo holds simplified metadata for a Docker container
 type ContainerInfo struct {
-	ID      string // Full container ID
-	Name    string // Container name without leading slash
-	Image   string // Image name (e.g. redis:latest)
-	ImageID string // Full image ID
-	ShortID string // First 12 characters of the container ID
+	ID      string            // Full container ID
+	Name    string            // Container name without leading slash
+	Image   string            // Image name (e.g. redis:latest)
+	ImageID string            // Full image ID
+	ShortID string            // First 12 characters of the container ID
+	Labels  map[string]string // Container labels
 }
 
 // NewContainerInfo safely extracts basic info from container summary
@@ -30,6 +31,7 @@ func NewContainerInfo(c container.Summary) ContainerInfo {
 		Image:   c.Image,
 		ImageID: c.ImageID,
 		ShortID: shortID(c.ID),
+		Labels:  c.Labels,
 	}
 }
 
