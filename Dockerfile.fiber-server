@@ -11,6 +11,8 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /app/rattle ./cmd/fiber-server
 
 FROM alpine:latest
 
+RUN apk add --no-cache curl
+
 COPY --from=builder /app/rattle /usr/local/bin/rattle
 
 EXPOSE ${FIBER_PORT}
