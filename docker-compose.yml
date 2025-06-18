@@ -40,11 +40,11 @@ services:
     networks:
       - rattle-network
 
-  fiber-server:
-    container_name: rattle_fiber_server
+  server:
+    container_name: rattle_server
     build:
       context: https://github.com/ilyxenc/rattle.git
-      dockerfile: Dockerfile.fiber-server
+      dockerfile: Dockerfile.server
     depends_on:
       postgres:
         condition: service_healthy
@@ -55,20 +55,20 @@ services:
       test:
         [
           "CMD-SHELL",
-          "curl -f http://localhost:$${FIBER_PORT:-52101}/api/heartbeat || exit 1",
+          "curl -f http://localhost:$${SERVER_PORT:-52101}/api/heartbeat || exit 1",
         ]
       interval: 5s
       timeout: 5s
       retries: 5
     ports:
-      - "${FIBER_PORT:-52101}:${FIBER_PORT:-52101}"
+      - "${SERVER_PORT:-52101}:${SERVER_PORT:-52101}"
     labels:
       - rattle.managed=true # Used by Rattle log-scanner
       - traefik.enable=true
       - traefik.http.routers.rattle-api.rule=Host(`${HOST_RATTLE}`)
       - traefik.http.routers.rattle-api.entrypoints=websecure
       - traefik.http.routers.rattle-api.tls.certresolver=letsencrypt
-      - traefik.http.services.rattle-api.loadbalancer.server.port=${FIBER_PORT:-52101}
+      - traefik.http.services.rattle-api.loadbalancer.server.port=${SERVER_PORT:-52101}
     networks:
       - rattle-network
 
@@ -81,7 +81,7 @@ services:
         VITE_PUBLIC_API_HOST: ${VITE_PUBLIC_API_HOST}
         FRONTEND_PORT: ${FRONTEND_PORT:-52100}
     depends_on:
-      fiber-server:
+      server:
         condition: service_healthy
     restart: always
     env_file:

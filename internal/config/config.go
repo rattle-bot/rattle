@@ -72,7 +72,7 @@ func Load() {
 		ExcludeContainerIDs:    splitEnv("EXCLUDE_CONTAINER_IDS"),
 		ExcludeContainerLabels: splitEnv("EXCLUDE_CONTAINER_LABELS"),
 		Fiber: Fiber{
-			Port: getEnvAsInt("FIBER_PORT"),
+			Port: getEnvAsInt("SERVER_PORT"),
 		},
 	}
 }

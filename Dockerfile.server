@@ -15,6 +15,6 @@ RUN apk add --no-cache curl
 
 COPY --from=builder /app/rattle /usr/local/bin/rattle
 
-EXPOSE ${FIBER_PORT}
+EXPOSE ${SERVER_PORT}
 
 ENTRYPOINT ["rattle"]
