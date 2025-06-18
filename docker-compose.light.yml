@@ -2,38 +2,47 @@ version: "3.9"
 
 services:
   postgres:
-    image: postgres:16-alpine
     container_name: rattle_postgres
+    image: postgres:16-alpine
     restart: always
-    environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     ports:
-      - "5435:${POSTGRES_PORT:-5432}"
+      - "${POSTGRES_PORT_EXTERNAL:-52102}:${POSTGRES_PORT:-5432}"
     volumes:
-      - ${POSTGRES_VOLUMES}
+      - ${POSTGRES_VOLUMES:-pgdata-rattle:/var/lib/postgresql/data}
+    labels:
+      rattle.managed: "true" # Used by Rattle log-scanner
     networks:
       - rattle-network
 
   scanner:
-    build:
-      context: .
-      dockerfile: Dockerfile.scanner
     container_name: rattle_scanner
+    build:
+      context: https://github.com/ilyxenc/rattle.git
+      dockerfile: Dockerfile.scanner
     depends_on:
-      - postgres
-    restart: unless-stopped
+      postgres:
+        condition: service_healthy
+    restart: always
     env_file:
       - .env
     volumes:
-      - ./logs:/app/logs
+      - logs-rattle:/app/logs
       - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      rattle.managed: "true" # Used by Rattle log-scanner
     networks:
       - rattle-network
 
 volumes:
-  pgdata:
+  pgdata-rattle:
+  logs-rattle:
 
 networks:
   rattle-network:

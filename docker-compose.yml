@@ -1,0 +1,107 @@
+version: "3.9"
+
+services:
+  postgres:
+    container_name: rattle_postgres
+    image: postgres:16-alpine
+    restart: always
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "${POSTGRES_PORT_EXTERNAL:-52102}:${POSTGRES_PORT:-5432}"
+    volumes:
+      - ${POSTGRES_VOLUMES:-pgdata-rattle:/var/lib/postgresql/data}
+    labels:
+      rattle.managed: "true" # Used by Rattle log-scanner
+    networks:
+      - rattle-network
+
+  scanner:
+    container_name: rattle_scanner
+    build:
+      context: https://github.com/ilyxenc/rattle.git
+      dockerfile: Dockerfile.scanner
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - logs-rattle:/app/logs
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      rattle.managed: "true" # Used by Rattle log-scanner
+    networks:
+      - rattle-network
+
+  fiber-server:
+    container_name: rattle_fiber_server
+    build:
+      context: https://github.com/ilyxenc/rattle.git
+      dockerfile: Dockerfile.fiber-server
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: always
+    env_file:
+      - .env
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -f http://localhost:$${FIBER_PORT:-52101}/api/heartbeat || exit 1",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "${FIBER_PORT:-52101}:${FIBER_PORT:-52101}"
+    labels:
+      - rattle.managed=true # Used by Rattle log-scanner
+      - traefik.enable=true
+      - traefik.http.routers.rattle-api.rule=Host(`${HOST_RATTLE}`)
+      - traefik.http.routers.rattle-api.entrypoints=websecure
+      - traefik.http.routers.rattle-api.tls.certresolver=letsencrypt
+      - traefik.http.services.rattle-api.loadbalancer.server.port=${FIBER_PORT:-52101}
+    networks:
+      - rattle-network
+
+  frontend:
+    container_name: rattle_frontend
+    build:
+      context: https://github.com/ilyxenc/rattle-frontend.git
+      dockerfile: Dockerfile
+      args:
+        VITE_PUBLIC_API_HOST: ${VITE_PUBLIC_API_HOST}
+        FRONTEND_PORT: ${FRONTEND_PORT:-52100}
+    depends_on:
+      fiber-server:
+        condition: service_healthy
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "${FRONTEND_PORT:-52100}:${FRONTEND_PORT:-52100}"
+    labels:
+      - rattle.managed=true # Used by Rattle log-scanner
+      - traefik.enable=true
+      - traefik.http.routers.rattle-frontend.rule=Host(`${HOST_RATTLE}`)
+      - traefik.http.routers.rattle-frontend.entrypoints=websecure
+      - traefik.http.routers.rattle-frontend.tls.certresolver=letsencrypt
+      - traefik.http.services.rattle-frontend.loadbalancer.server.port=${FRONTEND_PORT:-52100}
+    networks:
+      - rattle-network
+
+volumes:
+  pgdata-rattle:
+  logs-rattle:
+
+networks:
+  rattle-network:
+    driver: bridge
