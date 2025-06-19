@@ -42,4 +42,6 @@ jobs:
           context: .
           file: ${{ matrix.dockerfile }}
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.REPO }}-${{ matrix.name }}:${{ github.ref_name }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.REPO }}-${{ matrix.name }}:${{ github.ref_name }}
+            ${{ env.REGISTRY }}/${{ env.REPO }}-${{ matrix.name }}:latest
