@@ -51,13 +51,13 @@ services:
       test:
         [
           "CMD-SHELL",
-          "curl -f http://localhost:8080/api/heartbeat || exit 1",
+          "curl -f http://localhost:$${SERVER_PORT:-52101}/api/heartbeat || exit 1",
         ]
       interval: 5s
       timeout: 5s
       retries: 5
     ports:
-      - "${SERVER_PORT:-52101}:8080"
+      - "${SERVER_PORT:-52101}:${SERVER_PORT:-52101}"
     labels:
       - rattle.managed=true # Used by Rattle log-scanner
     networks:
