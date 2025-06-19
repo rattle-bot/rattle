@@ -23,9 +23,7 @@ services:
 
   scanner:
     container_name: rattle_scanner
-    build:
-      context: https://github.com/ilyxenc/rattle.git
-      dockerfile: Dockerfile.scanner
+    image: ghcr.io/rattle-bot/rattle-scanner:latest
     depends_on:
       postgres:
         condition: service_healthy
@@ -42,9 +40,7 @@ services:
 
   server:
     container_name: rattle_server
-    build:
-      context: https://github.com/ilyxenc/rattle.git
-      dockerfile: Dockerfile.server
+    image: ghcr.io/rattle-bot/rattle-server:latest
     depends_on:
       postgres:
         condition: service_healthy
@@ -55,31 +51,21 @@ services:
       test:
         [
           "CMD-SHELL",
-          "curl -f http://localhost:$${SERVER_PORT:-52101}/api/heartbeat || exit 1",
+          "curl -f http://localhost:8080/api/heartbeat || exit 1",
         ]
       interval: 5s
       timeout: 5s
       retries: 5
     ports:
-      - "${SERVER_PORT:-52101}:${SERVER_PORT:-52101}"
+      - "${SERVER_PORT:-52101}:8080"
     labels:
       - rattle.managed=true # Used by Rattle log-scanner
-      - traefik.enable=true
-      - traefik.http.routers.rattle-api.rule=Host(`${HOST_RATTLE}`)
-      - traefik.http.routers.rattle-api.entrypoints=websecure
-      - traefik.http.routers.rattle-api.tls.certresolver=letsencrypt
-      - traefik.http.services.rattle-api.loadbalancer.server.port=${SERVER_PORT:-52101}
     networks:
       - rattle-network
 
   frontend:
     container_name: rattle_frontend
-    build:
-      context: https://github.com/ilyxenc/rattle-frontend.git
-      dockerfile: Dockerfile
-      args:
-        VITE_PUBLIC_API_HOST: ${VITE_PUBLIC_API_HOST}
-        FRONTEND_PORT: ${FRONTEND_PORT:-52100}
+    image: ghcr.io/rattle-bot/frontend:latest
     depends_on:
       server:
         condition: service_healthy
@@ -87,14 +73,9 @@ services:
     env_file:
       - .env
     ports:
-      - "${FRONTEND_PORT:-52100}:${FRONTEND_PORT:-52100}"
+      - "${FRONTEND_PORT:-52100}:3000"
     labels:
       - rattle.managed=true # Used by Rattle log-scanner
-      - traefik.enable=true
-      - traefik.http.routers.rattle-frontend.rule=Host(`${HOST_RATTLE}`)
-      - traefik.http.routers.rattle-frontend.entrypoints=websecure
-      - traefik.http.routers.rattle-frontend.tls.certresolver=letsencrypt
-      - traefik.http.services.rattle-frontend.loadbalancer.server.port=${FRONTEND_PORT:-52100}
     networks:
       - rattle-network
 

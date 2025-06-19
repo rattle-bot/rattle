@@ -23,9 +23,7 @@ services:
 
   scanner:
     container_name: rattle_scanner
-    build:
-      context: https://github.com/ilyxenc/rattle.git
-      dockerfile: Dockerfile.scanner
+    image: ghcr.io/rattle-bot/rattle-scanner:latest
     depends_on:
       postgres:
         condition: service_healthy
