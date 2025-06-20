@@ -34,7 +34,7 @@ func shouldIgnoreContainer(ci docker.ContainerInfo) bool {
 
 	// Whitelist mode: must match at least one
 	if mode == models.Whitelist {
-		if matchesAny(id, managers.Containers.All(models.ContainerID, mode), strings.Contains) {
+		if matchesAny(id, managers.Containers.All(models.ContainerID, mode), strings.HasPrefix) {
 			return false
 		}
 
@@ -54,7 +54,7 @@ func shouldIgnoreContainer(ci docker.ContainerInfo) bool {
 	}
 
 	// Blacklist mode: must NOT match any
-	if matchesAny(id, managers.Containers.All(models.ContainerID, mode), strings.Contains) {
+	if matchesAny(id, managers.Containers.All(models.ContainerID, mode), strings.HasPrefix) {
 		return true
 	}
 
