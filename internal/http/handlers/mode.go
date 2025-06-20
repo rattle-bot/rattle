@@ -7,6 +7,21 @@ import (
 	"github.com/ilyxenc/rattle/internal/models"
 )
 
+func GetFilteringMode(c *fiber.Ctx) error {
+	db := database.DB
+
+	var mode models.Mode
+	if err := db.First(&mode).Error; err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(Res{
+			Message: "Filtering mode not found",
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"value": mode.Value,
+	})
+}
+
 func UpdateFilteringMode(c *fiber.Ctx) error {
 	input := new(updateModeInput)
 	if err := c.BodyParser(&input); err != nil {

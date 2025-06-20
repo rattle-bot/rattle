@@ -40,5 +40,6 @@ func SetupRoutes(app *fiber.App) {
 	log.Delete("/:id", mw.Protected(), mw.LocatedTelegramId(), mw.LocatedUserRole("admin"), handlers.DeleteLog)
 
 	mode := api.Group("/mode")
+	mode.Get("/", mw.Protected(), handlers.GetFilteringMode)
 	mode.Patch("/", mw.Protected(), mw.LocatedTelegramId(), mw.LocatedUserRole("admin"), handlers.UpdateFilteringMode)
 }
