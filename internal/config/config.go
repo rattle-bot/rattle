@@ -30,10 +30,19 @@ type Config struct {
 	IncludePatterns map[string][]string // Key = eventType
 	ExcludePatterns []string            // Regex patterns to exclude from log detection
 
+	ContainerFilterMode string // "whitelist" or "blacklist"
+
+	// Blacklist (exclude mode)
 	ExcludeContainerNames  []string // Container names to ignore
 	ExcludeContainerImages []string // Container images to ignore
 	ExcludeContainerIDs    []string // Container IDs to ignore
 	ExcludeContainerLabels []string // Container labels to ignore
+
+	// Whitelist (include mode)
+	IncludeContainerNames  []string // Container names to ignore
+	IncludeContainerImages []string // Container images to ignore
+	IncludeContainerIDs    []string // Container IDs to ignore
+	IncludeContainerLabels []string // Container labels to ignore
 }
 
 // Cfg is the global config instance accessible throughout the app
@@ -67,10 +76,15 @@ func Load() {
 			"critical": splitEnv("INCLUDE_PATTERNS_CRITICAL"),
 		},
 		ExcludePatterns:        splitEnv("EXCLUDE_PATTERNS"),
+		ContainerFilterMode:    getEnv("CONTAINER_FILTER_MODE"),
 		ExcludeContainerNames:  splitEnv("EXCLUDE_CONTAINER_NAMES"),
 		ExcludeContainerImages: splitEnv("EXCLUDE_CONTAINER_IMAGES"),
 		ExcludeContainerIDs:    splitEnv("EXCLUDE_CONTAINER_IDS"),
 		ExcludeContainerLabels: splitEnv("EXCLUDE_CONTAINER_LABELS"),
+		IncludeContainerNames:  splitEnv("INCLUDE_CONTAINER_NAMES"),
+		IncludeContainerImages: splitEnv("INCLUDE_CONTAINER_IMAGES"),
+		IncludeContainerIDs:    splitEnv("INCLUDE_CONTAINER_IDS"),
+		IncludeContainerLabels: splitEnv("INCLUDE_CONTAINER_LABELS"),
 		Fiber: Fiber{
 			Port: getEnvAsInt("SERVER_PORT"),
 		},

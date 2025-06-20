@@ -22,7 +22,7 @@ var Containers = &ContainerManager{
 
 // Reload fetches excluded containers from the database and stores them in memory
 func (m *ContainerManager) Reload() error {
-	var all []models.ContainerExclusion
+	var all []models.Container
 
 	if err := database.DB.Find(&all).Error; err != nil {
 		return err

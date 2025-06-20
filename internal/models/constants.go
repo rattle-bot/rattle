@@ -16,9 +16,13 @@ const (
 	RoleAdmin = "admin"
 	RoleUser  = "user"
 
-	// Container exclusion types
-	ContainerExclusionName  = "name"
-	ContainerExclusionImage = "image"
-	ContainerExclusionID    = "id"
-	ContainerExclusionLabel = "label"
+	// Container types
+	ContainerName  = "name"
+	ContainerImage = "image"
+	ContainerID    = "id"
+	ContainerLabel = "label"
+
+	// Container monitoring modes
+	Blacklist = "blacklist"
+	Whitelist = "whitelist"
 )

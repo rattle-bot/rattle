@@ -22,17 +22,17 @@ func shouldIgnoreContainer(ci docker.ContainerInfo) bool {
 	id := strings.ToLower(ci.ID)
 
 	// Check if container name matches any exclusion pattern
-	if matchesAny(name, managers.Containers.All(models.ContainerExclusionName), strings.Contains) {
+	if matchesAny(name, managers.Containers.All(models.ContainerName), strings.Contains) {
 		return true
 	}
 
 	// Check if container image matches any exclusion pattern
-	if matchesAny(image, managers.Containers.All(models.ContainerExclusionImage), strings.Contains) {
+	if matchesAny(image, managers.Containers.All(models.ContainerImage), strings.Contains) {
 		return true
 	}
 
 	// Check if container ID starts with any excluded ID prefix
-	if matchesAny(id, managers.Containers.All(models.ContainerExclusionID), strings.HasPrefix) {
+	if matchesAny(id, managers.Containers.All(models.ContainerID), strings.HasPrefix) {
 		return true
 	}
 
@@ -40,7 +40,7 @@ func shouldIgnoreContainer(ci docker.ContainerInfo) bool {
 	for key, val := range ci.Labels {
 		label := strings.ToLower(key + "=" + val)
 
-		if matchesAny(label, managers.Containers.All(models.ContainerExclusionLabel), strings.Contains) {
+		if matchesAny(label, managers.Containers.All(models.ContainerLabel), strings.Contains) {
 			return true
 		}
 	}

@@ -17,7 +17,7 @@ type createUserInput struct {
 
 type createChatInput struct {
 	ChatID string `json:"chat_id" validate:"required"`
-	Send   bool  `json:"send"`
+	Send   bool   `json:"send"`
 }
 
 type updateChatInput struct {
@@ -27,6 +27,7 @@ type updateChatInput struct {
 type saveContainerInput struct {
 	Type  string `json:"type" validate:"required,oneof=name image id"`
 	Value string `json:"value"`
+	Mode  string `json:"mode" validate:"required,oneof=blacklist whitelist"`
 }
 
 type createLogInput struct {

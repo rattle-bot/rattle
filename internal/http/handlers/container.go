@@ -25,7 +25,7 @@ func CreateContainer(c *fiber.Ctx) error {
 
 	db := database.DB
 
-	container := models.ContainerExclusion{
+	container := models.Container{
 		Type:  input.Type,
 		Value: input.Value,
 	}
@@ -44,7 +44,7 @@ func CreateContainer(c *fiber.Ctx) error {
 
 func ListContainers(c *fiber.Ctx) error {
 	db := database.DB
-	var containers []models.ContainerExclusion
+	var containers []models.Container
 
 	if err := db.Order("created_at DESC").Find(&containers).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(Res{
@@ -77,7 +77,7 @@ func UpdateContainer(c *fiber.Ctx) error {
 
 	db := database.DB
 
-	result := db.Model(&models.ContainerExclusion{}).Where("id = ?", id).Updates(map[string]any{
+	result := db.Model(&models.Container{}).Where("id = ?", id).Updates(map[string]any{
 		"type":  input.Type,
 		"value": input.Value,
 	})
@@ -103,7 +103,7 @@ func DeleteContainer(c *fiber.Ctx) error {
 
 	db := database.DB
 
-	result := db.Delete(&models.ContainerExclusion{}, "id = ?", id)
+	result := db.Delete(&models.Container{}, "id = ?", id)
 
 	if result.Error != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(Res{
