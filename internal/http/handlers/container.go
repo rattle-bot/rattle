@@ -28,6 +28,7 @@ func CreateContainer(c *fiber.Ctx) error {
 	container := models.Container{
 		Type:  input.Type,
 		Value: input.Value,
+		Mode:  input.Mode,
 	}
 
 	if err := db.Create(&container).Error; err != nil {
@@ -80,6 +81,7 @@ func UpdateContainer(c *fiber.Ctx) error {
 	result := db.Model(&models.Container{}).Where("id = ?", id).Updates(map[string]any{
 		"type":  input.Type,
 		"value": input.Value,
+		"mode":  input.Mode,
 	})
 
 	if result.Error != nil {
