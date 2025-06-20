@@ -17,8 +17,9 @@ func GetFilteringMode(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(fiber.Map{
-		"value": mode.Value,
+	return c.Status(fiber.StatusOK).JSON(Res{
+		Message: "",
+		Data:    mode,
 	})
 }
 
@@ -55,7 +56,7 @@ func UpdateFilteringMode(c *fiber.Ctx) error {
 
 		return c.Status(fiber.StatusOK).JSON(Res{
 			Message: "Filtering mode created",
-			Data:    input.Value,
+			Data:    newMode,
 		})
 	}
 
@@ -67,6 +68,6 @@ func UpdateFilteringMode(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(Res{
 		Message: "Filtering mode updated",
-		Data:    input.Value,
+		Data:    mode,
 	})
 }
