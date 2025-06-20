@@ -30,6 +30,7 @@ func SetupRoutes(app *fiber.App) {
 	container := api.Group("/container")
 	container.Post("/new", mw.Protected(), mw.LocatedTelegramId(), mw.LocatedUserRole("admin"), handlers.CreateContainer)
 	container.Get("/list", mw.Protected(), handlers.ListContainers)
+	container.Get("/list-running", mw.Protected(), handlers.ListRunningContainers)
 	container.Patch("/:id", mw.Protected(), mw.LocatedTelegramId(), mw.LocatedUserRole("admin"), handlers.UpdateContainer)
 	container.Delete("/:id", mw.Protected(), mw.LocatedTelegramId(), mw.LocatedUserRole("admin"), handlers.DeleteContainer)
 
@@ -38,4 +39,8 @@ func SetupRoutes(app *fiber.App) {
 	log.Get("/list", mw.Protected(), handlers.ListLog)
 	log.Patch("/:id", mw.Protected(), mw.LocatedTelegramId(), mw.LocatedUserRole("admin"), handlers.UpdateLog)
 	log.Delete("/:id", mw.Protected(), mw.LocatedTelegramId(), mw.LocatedUserRole("admin"), handlers.DeleteLog)
+
+	mode := api.Group("/mode")
+	mode.Get("/", mw.Protected(), handlers.GetFilteringMode)
+	mode.Patch("/", mw.Protected(), mw.LocatedTelegramId(), mw.LocatedUserRole("admin"), handlers.UpdateFilteringMode)
 }

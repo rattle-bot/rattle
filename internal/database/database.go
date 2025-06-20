@@ -1,6 +1,7 @@
 package database
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -42,7 +43,7 @@ func Connect() error {
 
 func AutoMigrate() error {
 	return DB.AutoMigrate(
-		&models.User{}, &models.LogExclusion{}, &models.Chat{}, &models.ContainerExclusion{},
+		&models.User{}, &models.LogExclusion{}, &models.Chat{}, &models.Container{}, &models.Mode{},
 	)
 }
 
@@ -116,28 +117,43 @@ func Initialize() error {
 		}
 	}
 
+	// Init filtering mode for containers value (only if not exists)
+	var mode models.Mode
+	if err := DB.First(&mode).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		if err := DB.Create(&models.Mode{
+			Value: config.Cfg.ContainerFilterMode,
+		}).Error; err != nil {
+			return err
+		}
+	} else if err != nil {
+		return err
+	}
+
 	// Init exclude containers values
 	// Rattle exclusion
-	exclusions := []models.ContainerExclusion{
-		{Type: models.ContainerExclusionName, Value: "rattle"},
-		{Type: models.ContainerExclusionImage, Value: "rattle"},
-		{Type: models.ContainerExclusionLabel, Value: "rattle"},
+	exclusions := []models.Container{
+		{Type: models.ContainerName, Value: "rattle", Mode: models.Blacklist},
+		{Type: models.ContainerImage, Value: "rattle", Mode: models.Blacklist},
+		{Type: models.ContainerLabel, Value: "rattle", Mode: models.Blacklist},
 	}
 	for _, e := range exclusions {
-		if err := DB.FirstOrCreate(&models.ContainerExclusion{}, e).Error; err != nil {
+		if err := DB.FirstOrCreate(&models.Container{}, e).Error; err != nil {
 			return err
 		}
 	}
+
+	// Blacklist
 	for _, val := range config.Cfg.ExcludeContainerNames {
 		if strings.TrimSpace(val) == "" {
 			continue
 		}
 
-		entry := models.ContainerExclusion{
-			Type:  models.ContainerExclusionName,
+		entry := models.Container{
+			Type:  models.ContainerName,
 			Value: val,
+			Mode:  models.Blacklist,
 		}
-		if err := DB.FirstOrCreate(&models.ContainerExclusion{}, entry).Error; err != nil {
+		if err := DB.FirstOrCreate(&models.Container{}, entry).Error; err != nil {
 			return err
 		}
 	}
@@ -147,11 +163,12 @@ func Initialize() error {
 			continue
 		}
 
-		entry := models.ContainerExclusion{
-			Type:  models.ContainerExclusionImage,
+		entry := models.Container{
+			Type:  models.ContainerImage,
 			Value: val,
+			Mode:  models.Blacklist,
 		}
-		if err := DB.FirstOrCreate(&models.ContainerExclusion{}, entry).Error; err != nil {
+		if err := DB.FirstOrCreate(&models.Container{}, entry).Error; err != nil {
 			return err
 		}
 	}
@@ -161,11 +178,12 @@ func Initialize() error {
 			continue
 		}
 
-		entry := models.ContainerExclusion{
-			Type:  models.ContainerExclusionID,
+		entry := models.Container{
+			Type:  models.ContainerID,
 			Value: val,
+			Mode:  models.Blacklist,
 		}
-		if err := DB.FirstOrCreate(&models.ContainerExclusion{}, entry).Error; err != nil {
+		if err := DB.FirstOrCreate(&models.Container{}, entry).Error; err != nil {
 			return err
 		}
 	}
@@ -175,11 +193,73 @@ func Initialize() error {
 			continue
 		}
 
-		entry := models.ContainerExclusion{
-			Type: models.ContainerExclusionLabel,
+		entry := models.Container{
+			Type:  models.ContainerLabel,
 			Value: val,
+			Mode:  models.Blacklist,
 		}
-		if err := DB.FirstOrCreate(&models.ContainerExclusion{}, entry).Error; err != nil {
+		if err := DB.FirstOrCreate(&models.Container{}, entry).Error; err != nil {
+			return err
+		}
+	}
+
+	// Whitelist
+	for _, val := range config.Cfg.IncludeContainerNames {
+		if strings.TrimSpace(val) == "" {
+			continue
+		}
+
+		entry := models.Container{
+			Type:  models.ContainerName,
+			Value: val,
+			Mode:  models.Whitelist,
+		}
+		if err := DB.FirstOrCreate(&models.Container{}, entry).Error; err != nil {
+			return err
+		}
+	}
+
+	for _, val := range config.Cfg.IncludeContainerImages {
+		if strings.TrimSpace(val) == "" {
+			continue
+		}
+
+		entry := models.Container{
+			Type:  models.ContainerImage,
+			Value: val,
+			Mode:  models.Whitelist,
+		}
+		if err := DB.FirstOrCreate(&models.Container{}, entry).Error; err != nil {
+			return err
+		}
+	}
+
+	for _, val := range config.Cfg.IncludeContainerIDs {
+		if strings.TrimSpace(val) == "" {
+			continue
+		}
+
+		entry := models.Container{
+			Type:  models.ContainerID,
+			Value: val,
+			Mode:  models.Whitelist,
+		}
+		if err := DB.FirstOrCreate(&models.Container{}, entry).Error; err != nil {
+			return err
+		}
+	}
+
+	for _, val := range config.Cfg.IncludeContainerLabels {
+		if strings.TrimSpace(val) == "" {
+			continue
+		}
+
+		entry := models.Container{
+			Type:  models.ContainerLabel,
+			Value: val,
+			Mode:  models.Whitelist,
+		}
+		if err := DB.FirstOrCreate(&models.Container{}, entry).Error; err != nil {
 			return err
 		}
 	}

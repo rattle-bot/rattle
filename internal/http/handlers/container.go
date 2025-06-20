@@ -1,6 +1,11 @@
 package handlers
 
 import (
+	"context"
+	"strings"
+
+	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/client"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/ilyxenc/rattle/internal/database"
@@ -25,9 +30,10 @@ func CreateContainer(c *fiber.Ctx) error {
 
 	db := database.DB
 
-	container := models.ContainerExclusion{
+	container := models.Container{
 		Type:  input.Type,
 		Value: input.Value,
+		Mode:  input.Mode,
 	}
 
 	if err := db.Create(&container).Error; err != nil {
@@ -44,7 +50,7 @@ func CreateContainer(c *fiber.Ctx) error {
 
 func ListContainers(c *fiber.Ctx) error {
 	db := database.DB
-	var containers []models.ContainerExclusion
+	var containers []models.Container
 
 	if err := db.Order("created_at DESC").Find(&containers).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(Res{
@@ -55,6 +61,40 @@ func ListContainers(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(Res{
 		Message: "List of containers",
 		Data:    containers,
+	})
+}
+
+func ListRunningContainers(c *fiber.Ctx) error {
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(Res{
+			Message: "Failed to initialize Docker client",
+		})
+	}
+
+	containers, err := cli.ContainerList(context.Background(), container.ListOptions{
+		All: false, // Only running containers
+	})
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(Res{
+			Message: "Failed to list containers",
+		})
+	}
+
+	result := make([]getRunningContainer, 0, len(containers))
+	for _, c := range containers {
+		result = append(result, getRunningContainer{
+			ID:      c.ID,
+			Name:    strings.TrimPrefix(c.Names[0], "/"),
+			Image:   c.Image,
+			Labels:  c.Labels,
+			ShortID: c.ID[:12],
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(Res{
+		Message: "Containers received",
+		Data:    result,
 	})
 }
 
@@ -77,9 +117,10 @@ func UpdateContainer(c *fiber.Ctx) error {
 
 	db := database.DB
 
-	result := db.Model(&models.ContainerExclusion{}).Where("id = ?", id).Updates(map[string]any{
+	result := db.Model(&models.Container{}).Where("id = ?", id).Updates(map[string]any{
 		"type":  input.Type,
 		"value": input.Value,
+		"mode":  input.Mode,
 	})
 
 	if result.Error != nil {
@@ -103,7 +144,7 @@ func DeleteContainer(c *fiber.Ctx) error {
 
 	db := database.DB
 
-	result := db.Delete(&models.ContainerExclusion{}, "id = ?", id)
+	result := db.Delete(&models.Container{}, "id = ?", id)
 
 	if result.Error != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(Res{

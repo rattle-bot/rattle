@@ -11,6 +11,9 @@ func Init() {
 	if err := Chats.Reload(); err != nil {
 		logger.Log.Fatalf("Failed to load chat IDs: %v", err)
 	}
+	if err := Mode.Reload(); err != nil {
+		logger.Log.Fatalf("Failed to load mode: %v", err)
+	}
 	if err := Containers.Reload(); err != nil {
 		logger.Log.Fatalf("Failed to load container exclusions: %v", err)
 	}
@@ -24,7 +27,12 @@ func Init() {
 			logger.Log.Warnf("Failed to reload log exclusions: %v", err)
 		}
 	})
-	AddWatcher("container_exclusions", []string{"updated_at", "deleted_at"}, func() {
+	AddWatcher("modes", []string{"updated_at", "deleted_at"}, func() {
+		if err := Mode.Reload(); err != nil {
+			logger.Log.Warnf("Failed to reload mode: %v", err)
+		}
+	})
+	AddWatcher("containers", []string{"updated_at", "deleted_at"}, func() {
 		if err := Containers.Reload(); err != nil {
 			logger.Log.Warnf("Failed to reload container exclusions: %v", err)
 		}
