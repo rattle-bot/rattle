@@ -30,6 +30,7 @@ func SetupRoutes(app *fiber.App) {
 	container := api.Group("/container")
 	container.Post("/new", mw.Protected(), mw.LocatedTelegramId(), mw.LocatedUserRole("admin"), handlers.CreateContainer)
 	container.Get("/list", mw.Protected(), handlers.ListContainers)
+	container.Get("/list-running", mw.Protected(), handlers.ListRunningContainers)
 	container.Patch("/:id", mw.Protected(), mw.LocatedTelegramId(), mw.LocatedUserRole("admin"), handlers.UpdateContainer)
 	container.Delete("/:id", mw.Protected(), mw.LocatedTelegramId(), mw.LocatedUserRole("admin"), handlers.DeleteContainer)
 
