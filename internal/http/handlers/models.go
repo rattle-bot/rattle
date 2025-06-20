@@ -41,3 +41,7 @@ type updateLogInput struct {
 	MatchType *string `json:"match_type" validate:"omitempty,oneof=include exclude"`
 	EventType *string `json:"event_type" validate:"omitempty,oneof=error info warning success critical"`
 }
+
+type updateModeInput struct {
+	Value string `json:"value" validate:"required,oneof=blacklist whitelist"`
+}
