@@ -34,7 +34,7 @@ func Init() {
 			logger.Log.Warnf("Failed to reload chat IDs: %v", err)
 		}
 	})
-	AddWatcher("mode", []string{"updated_at", "deleted_at"}, func() {
+	AddWatcher("modes", []string{"updated_at", "deleted_at"}, func() {
 		if err := Mode.Reload(); err != nil {
 			logger.Log.Warnf("Failed to reload mode: %v", err)
 		}
