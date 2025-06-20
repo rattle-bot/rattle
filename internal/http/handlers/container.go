@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"strings"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
@@ -84,7 +85,7 @@ func ListRunningContainers(c *fiber.Ctx) error {
 	for _, c := range containers {
 		result = append(result, getRunningContainer{
 			ID:      c.ID,
-			Name:    c.Names[0],
+			Name:    strings.TrimPrefix(c.Names[0], "/"),
 			Image:   c.Image,
 			Labels:  c.Labels,
 			ShortID: c.ID[:12],
