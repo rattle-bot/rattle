@@ -58,6 +58,8 @@ services:
       retries: 5
     ports:
       - "${SERVER_PORT:-52101}:${SERVER_PORT:-52101}"
+    volumes: 
+      - /var/run/docker.sock:/var/run/docker.sock
     labels:
       - rattle.managed=true # Used by Rattle log-scanner
     networks:
