@@ -30,6 +30,14 @@ type saveContainerInput struct {
 	Mode  string `json:"mode" validate:"required,oneof=blacklist whitelist"`
 }
 
+type getRunningContainer struct {
+	ID      string            `json:"id"`
+	Name    string            `json:"name"`
+	Image   string            `json:"image"`
+	Labels  map[string]string `json:"labels"`
+	ShortID string            `json:"short_id"`
+}
+
 type createLogInput struct {
 	Pattern   string `json:"pattern" validate:"required,min=1"`
 	MatchType string `json:"match_type" validate:"required,oneof=include exclude"`

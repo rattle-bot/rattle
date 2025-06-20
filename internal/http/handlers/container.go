@@ -1,6 +1,10 @@
 package handlers
 
 import (
+	"context"
+
+	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/client"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/ilyxenc/rattle/internal/database"
@@ -56,6 +60,40 @@ func ListContainers(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(Res{
 		Message: "List of containers",
 		Data:    containers,
+	})
+}
+
+func ListRunningContainers(c *fiber.Ctx) error {
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(Res{
+			Message: "Failed to initialize Docker client",
+		})
+	}
+
+	containers, err := cli.ContainerList(context.Background(), container.ListOptions{
+		All: false, // Only running containers
+	})
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(Res{
+			Message: "Failed to list containers",
+		})
+	}
+
+	result := make([]getRunningContainer, 0, len(containers))
+	for _, c := range containers {
+		result = append(result, getRunningContainer{
+			ID:      c.ID,
+			Name:    c.Names[0],
+			Image:   c.Image,
+			Labels:  c.Labels,
+			ShortID: c.ID[:12],
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(Res{
+		Message: "Containers received",
+		Data:    result,
 	})
 }
 
